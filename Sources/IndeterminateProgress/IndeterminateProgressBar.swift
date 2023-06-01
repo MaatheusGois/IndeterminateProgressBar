@@ -1,27 +1,31 @@
 import UIKit
 
-//MARK: - IndeterminateProgressBarState
+// MARK: - IndeterminateProgressBarState
+
 public enum IndeterminateProgressBarState {
     case indeterminate
     case determinate(percentage: CGFloat)
-    
+
     public var isDeterminate: Bool {
         switch self {
-            case .indeterminate:
-                return false
-            case .determinate(_):
-                return true
+        case .indeterminate:
+            return false
+        case .determinate:
+            return true
         }
     }
 }
 
-//MARK: - IndeterminateProgressBar
+// MARK: - IndeterminateProgressBar
+
 open class IndeterminateProgressBar: UIView {
-    //MARK: Private Properties
-    private var progressBarIndicator: UIView!
+
+    // MARK: Private Properties
+
+    private var progressBarIndicator = UIView()
     open private(set) var state: IndeterminateProgressBarState = .indeterminate
 
-    //MARK: Public Properties
+    // MARK: Public Properties
     @IBInspectable
     open var primaryColor: UIColor = .blue {
         didSet {
@@ -47,23 +51,23 @@ open class IndeterminateProgressBar: UIView {
     open var determinateAnimationDuration: TimeInterval = 1.0
 
     private var zeroFrame: CGRect {
-        CGRect(origin: .zero, size: CGSize(width: 0, height: bounds.size.height))
+        CGRect(origin: .zero, size: CGSize(width: .zero, height: bounds.size.height))
     }
-    
-    //MARK: Lifecycle
+
+    // MARK: Lifecycle
 
     override public init(frame: CGRect) {
         super.init(frame: frame)
 
         commonInit()
     }
-    
+
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
 
         commonInit()
     }
-    
+
     convenience init() {
         self.init(frame: CGRect.zero)
     }
@@ -92,7 +96,7 @@ open class IndeterminateProgressBar: UIView {
         updateForForegroundState()
     }
 
-    //MARK: Setup
+    // MARK: - Setup
 
     private func commonInit() {
         NotificationCenter.default.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
@@ -105,19 +109,21 @@ open class IndeterminateProgressBar: UIView {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.clipsToBounds = true
         self.backgroundColor = secondaryColor
-        
+
         progressBarIndicator = UIView(frame: zeroFrame)
         progressBarIndicator.backgroundColor = primaryColor
         progressBarIndicator.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.addSubview(progressBarIndicator)
     }
-    
-    //MARK: Public API
 
-    public func transition(to state: IndeterminateProgressBarState,
-                           delay: TimeInterval = 0,
-                           animateDeterminate: Bool = true,
-                           completion: ((Bool) -> Void)? = nil) {
+    // MARK: - Public API
+
+    public func transition(
+        to state: IndeterminateProgressBarState,
+        delay: TimeInterval = 0,
+        animateDeterminate: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) {
 
         guard window != nil else {
             self.state = state
@@ -125,57 +131,69 @@ open class IndeterminateProgressBar: UIView {
         }
 
         switch state {
-            case .determinate(let percentage):
-                stopIndeterminateAnimation()
-                animateProgress(toPercent: percentage, delay: delay, animated: animateDeterminate, completion: completion)
-            case .indeterminate:
-                startIndeterminateAnimation(delay: delay)
-                completion?(true)
+        case .determinate(let percentage):
+            stopIndeterminateAnimation()
+            animateProgress(toPercent: percentage, delay: delay, animated: animateDeterminate, completion: completion)
+        case .indeterminate:
+            startIndeterminateAnimation(delay: delay)
+            completion?(true)
         }
-        
+
         self.state = state
     }
-    
-    // MARK: Private
+
+    // MARK: - Private
+
     private func updateForBackgroundState() {
         stopIndeterminateAnimation()
     }
 
     private func updateForForegroundState() {
         DispatchQueue.main.async {
-            self.transition(to: self.state, animateDeterminate: self.animateDeterminateInitialization)
+            self.transition(
+                to: self.state,
+                animateDeterminate: self.animateDeterminateInitialization
+            )
         }
     }
 
-    private func animateProgress(toPercent percent: CGFloat,
-                                 delay: TimeInterval = 0,
-                                 animated: Bool = true,
-                                 completion: ((Bool) -> Void)? = nil) {
+    private func animateProgress(
+        toPercent percent: CGFloat,
+        delay: TimeInterval = 0,
+        animated: Bool = true,
+        completion: ((Bool) -> Void)? = nil
+    ) {
         UIView.animate(
             withDuration: animated ? determinateAnimationDuration : 0,
             delay: delay,
             options: [.beginFromCurrentState],
             animations: {
-                self.progressBarIndicator.frame = CGRect(x: 0, y: 0,
-                                                         width: self.bounds.width * percent,
-                                                         height: self.bounds.size.height)
+                self.progressBarIndicator.frame = CGRect(
+                    x: .zero,
+                    y: .zero,
+                    width: self.bounds.width * percent,
+                    height: self.bounds.size.height
+                )
             },
-            completion: completion)
+            completion: completion
+        )
     }
-    
+
     private func stopIndeterminateAnimation() {
         switch state {
-            case .indeterminate: moveProgressBarIndicatorToStart()
-            case .determinate: break
+        case .indeterminate:
+            moveProgressBarIndicatorToStart()
+        case .determinate:
+            break
         }
     }
-    
+
     private func moveProgressBarIndicatorToStart() {
         progressBarIndicator.layer.removeAllAnimations()
         progressBarIndicator.frame = zeroFrame
         progressBarIndicator.layoutIfNeeded()
     }
-    
+
     private func startIndeterminateAnimation(delay: TimeInterval = 0) {
         moveProgressBarIndicatorToStart()
 
@@ -187,15 +205,18 @@ open class IndeterminateProgressBar: UIView {
                 guard let self = self else { return }
 
                 UIView.addKeyframe(
-                    withRelativeStartTime: 0,
+                    withRelativeStartTime: .zero,
                     relativeDuration: self.indeterminateAnimationDuration/2,
                     animations: { [weak self] in
                         guard let self = self else { return }
 
-                        self.progressBarIndicator.frame = CGRect(x: 0, y: 0,
-                                                                 width: self.bounds.width * 0.7,
-                                                                 height: self.bounds.size.height)
-                    })
+                        self.progressBarIndicator.frame = CGRect(
+                            x: .zero, y: .zero,
+                            width: self.bounds.width * 0.7,
+                            height: self.bounds.size.height
+                        )
+                    }
+                )
 
                 UIView.addKeyframe(
                     withRelativeStartTime: self.indeterminateAnimationDuration/2,
@@ -203,10 +224,14 @@ open class IndeterminateProgressBar: UIView {
                     animations: { [weak self] in
                         guard let self = self else { return }
 
-                        self.progressBarIndicator.frame = CGRect(x: self.bounds.width, y: 0,
-                                                                 width: self.bounds.width * 0.3,
-                                                                 height: self.bounds.size.height)
-                    })
-        })
+                        self.progressBarIndicator.frame = CGRect(
+                            x: self.bounds.width, y: .zero,
+                            width: self.bounds.width * 0.3,
+                            height: self.bounds.size.height
+                        )
+                    }
+                )
+            }
+        )
     }
 }
