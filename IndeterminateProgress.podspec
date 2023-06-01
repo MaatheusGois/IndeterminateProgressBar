@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
                        DESC
   s.homepage         = 'https://github.com/nicorichard/IndeterminateProgress'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Indeterminatelas Richard' => 'nicorichard@gmail.com' }
+  s.author           = { 'nicolas Richard' => 'nicorichard@gmail.com' }
   s.source           = { :git => 'https://github.com/nicorichard/IndeterminateProgress.git', :tag => s.version.to_s }
   s.swift_versions   = ['4.0', '4.2', '5.0', '5.2', '5.3', '5.6']
 

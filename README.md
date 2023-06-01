@@ -88,7 +88,7 @@ dependencies: [
 
 ## Author
 
-Indeterminatelas Richard, nicorichard@gmail.com
+nicolas Richard, nicorichard@gmail.com
 
 ## License
 
